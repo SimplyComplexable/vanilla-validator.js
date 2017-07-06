@@ -3,3 +3,6 @@
     display: block;
     width: 100%;
 }
+.error-input {
+    box-shadow: inset 1px 1px 0 red, inset -1px -1px 0 red;
+}

@@ -138,7 +138,8 @@ function Validator(form, opts) {
         password: {
             required: generalTests.required,
             regex: generalTests.regex,
-            length: generalTests.length
+            length: generalTests.length,
+            number: generalTests.number
         },
         radio: {
             required: function () {
@@ -206,7 +207,7 @@ function Validator(form, opts) {
         var eMessageAtt = ruleArr[0].toLowerCase() + '-' + eStr;
         span.innerText = this.getDataAttribute(eMessageAtt) || form.getDataAttribute(eMessageAtt)
             || this.getDataAttribute(eStr) || form.getDataAttribute(eStr) || 'Please enter a valid value';
-        var eStr = 'error-class';
+        eStr = 'error-class';
         var eClass = this.getDataAttribute(eStr) || form.getDataAttribute(eStr);
 
         if (eClass) {
@@ -214,6 +215,16 @@ function Validator(form, opts) {
                 span.classList.add(eClass);
             } else {
                 span.className += ' ' + eClass;
+            }
+        }
+
+        eStr = 'error-input-class';
+        var eInputClass = this.getDataAttribute(eStr) || form.getDataAttribute(eStr);
+        if (eInputClass) {
+            if (this.classList) {
+                this.classList.add(eInputClass);
+            } else {
+                this.className += ' ' + eClass;
             }
         }
         parent.appendChild(span);
