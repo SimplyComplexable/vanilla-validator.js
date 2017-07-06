@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!--styles-->
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/main.css">
+    </head>
+    <body>
+        <div class="jumbotron">
+            <h1 class="text-center">Form Test</h1>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <form action="#" data-error-class="error-message" data-error-message="Please enter something!">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="text-1">Text 1</label>
+                                    <input type="text" id="text-1" name="abc" class="form-control"
+                                        data-validate="required,length:2:10,regex:^(abc|abc)+$"
+                                        data-length-error-message="Value must be 2-5 characters long"
+                                        data-regex-error-message="Value must be abc repeated">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="text-2">Text 2</label>
+                                    <input type="text" id="text-2" name="phone" class="form-control"
+                                        data-validate="phone:1"
+                                        data-phone-error-message="Value must be a valid phone number">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="text-3">Text 3</label>
+                                    <input type="text" id="text-3" name="email" class="form-control"
+                                        data-validate="required,email,length:0:36"
+                                        data-email-error-message="Please enter a valid email">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="text-4">Text 4</label>
+                                    <input type="text" id="text-4" class="form-control"
+                                        data-validate="date:M/D/YY">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="text-5">Text 5</label>
+                                    <input type="text" id="text-5" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="checkbox-1">Checkbox 1</label>
+                                    <input type="checkbox" id="checkbox-1"
+                                        data-validate="required"
+                                        data-error-message="You must accept the terms and conditions">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="color-1">Color 1</label>
+                                    <input type="color" id="color-1" class="form-control"
+                                        data-validate="vals:#000000:#ffffff"
+                                        data-range-error-message="Color must be between aaa and bbb">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="date-1">Date 1</label>
+                                    <input type="date" id="date-1" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="datetime-local-1">Datetime local 1</label>
+                                    <input type="datetime-local" id="datetime-local-1" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="file-1">File 1</label>
+                                    <input type="file" id="file-1" class="form-control" accept=".png,.jpg,.jpeg"
+                                        data-validate="required,accept">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="hidden-1">Hidden 1</label>
+                                    <input type="hidden" id="hidden-1" class="form-control"
+                                        data-validate="required">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="month-1">Month 1</label>
+                                    <input type="month" id="month-1" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="number-1">Number 1</label>
+                                    <input type="number" id="number-1" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="password-1">Password 1</label>
+                                    <input type="password" id="password-1" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="radio-1">Radio 1</label>
+                                    <input type="radio" id="radio-1" name="radio" value="1" data-validate="required">
+                                    <label for="radio-2">Radio 2</label>
+                                    <input type="radio" id="radio-2" name="radio" value="2">
+                                    <label for="radio-3">Radio 3</label>
+                                    <input type="radio" id="radio-3" name="radio" value="3">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="search-1">Search 1</label>
+                                    <input type="search" id="search-1" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="time-1">Time 1</label>
+                                    <input type="time" id="time-1" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="url-1">Url 1</label>
+                                    <input type="url" id="url-1" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label for="week-1">Week 1</label>
+                                    <input type="week" id="week-1" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-4"></div>
+                        </div>
+                        <div class="row col-xs-12">
+                            <button type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src="../src/DateValidator.js"></script>
+        <script src="moment.min.js"></script>
+        <script src="../src/Validator.js"></script>
+        <script>
+            Validator(document.querySelector('form'), {
+                dateValidator: DateValidator
+            });
+        </script>
+    </body>
+</html>
