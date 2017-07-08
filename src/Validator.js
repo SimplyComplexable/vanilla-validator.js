@@ -12,7 +12,16 @@ function Validator(form, opts) {
             return (new RegExp(p[0])).test(v);
         },
         vals: function (v, p) {
-            return (new RegExp('^('+p.join('|')+')$')).test(v);
+            var val = v.toLowerCase();
+            var vals = [];
+            for (var i = 0; i < p.length; i++) {
+                if (p[i].indexOf('!') !== -1) {
+                    if (val.indexOf(p[0].substr(1)) !== -1) return false;
+                } else {
+                    vals.push(p[i].toLowerCase());
+                }
+            }
+            return !vals.length ? true : (new RegExp('^('+p.join('|')+')$')).test(val);
         },
         number: function (v, p) {
             var n = Number(v);
@@ -36,8 +45,8 @@ function Validator(form, opts) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
         },
         date: function (v, p) {
-            DateValidator = opts.dateValidator;
-            dvStr = DateValidator.toString();
+            var DateValidator = opts.dateValidator;
+            var dvStr = DateValidator.toString();
             var result;
             console.time('DateValidator');
             if (dvStr.indexOf('DateValidator') !== -1) {
@@ -64,6 +73,9 @@ function Validator(form, opts) {
                     ? 'https:\/\/(www\.)?'
                     : 'https?:\/\/(www\.)?';
             return (new RegExp(regExStr + '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')).test(v);
+        },
+        match: function (v, p) {
+            return v === form.querySelector('#' + p[0]).value;
         }
     };
     var tests = {
@@ -76,7 +88,12 @@ function Validator(form, opts) {
             email: generalTests.email,
             vals: generalTests.vals,
             url: generalTests.url,
-            date: generalTests.date
+            date: generalTests.date,
+            match: generalTests.match
+        },
+        "select-one": {
+            required: generalTests.required,
+            vals: generalTests.vals
         },
         checkbox: {
             required: function() {
@@ -129,17 +146,20 @@ function Validator(form, opts) {
             phone: generalTests.phone,
             email: generalTests.email,
             vals: generalTests.vals,
-            url: generalTests.url
+            url: generalTests.url,
+            match: generalTests.match
         },
         number: {
             required: generalTests.required,
-            range: generalTests.number
+            range: generalTests.number,
+            match: generalTests.match
         },
         password: {
             required: generalTests.required,
             regex: generalTests.regex,
             length: generalTests.length,
-            number: generalTests.number
+            number: generalTests.number,
+            match: generalTests.match
         },
         radio: {
             required: function () {
@@ -154,7 +174,8 @@ function Validator(form, opts) {
             phone: generalTests.phone,
             email: generalTests.email,
             vals: generalTests.vals,
-            url: generalTests.url
+            url: generalTests.url,
+            match: generalTests.match
         }
     };
 
@@ -192,11 +213,33 @@ function Validator(form, opts) {
         var parent = this.parentElement;
         var span = parent.querySelector('span');
 
+        eStr = 'error-input-class';
+        var eInputClass = this.getDataAttribute(eStr) || form.getDataAttribute(eStr);
+
         if (isValid) {
             if (span) {
                 parent.removeChild(span);
             }
+            if (eInputClass) {
+                if (this.classList) {
+                    this.classList.remove(eInputClass);
+                } else {
+                    var index = this.className.indexOf(eInputClass);
+                    if (index) {
+                        this.className = this.className.substr(index, eInputClass.length);
+                    }
+                }
+            }
             return true;
+        }
+        console.log(validators[i]);
+
+        if (eInputClass) {
+            if (this.classList) {
+                this.classList.add(eInputClass);
+            } else {
+                this.className += ' ' + eClass;
+            }
         }
 
         if (!span) {
@@ -217,27 +260,11 @@ function Validator(form, opts) {
                 span.className += ' ' + eClass;
             }
         }
-
-        eStr = 'error-input-class';
-        var eInputClass = this.getDataAttribute(eStr) || form.getDataAttribute(eStr);
-        if (eInputClass) {
-            if (this.classList) {
-                this.classList.add(eInputClass);
-            } else {
-                this.className += ' ' + eClass;
-            }
-        }
         parent.appendChild(span);
         return false;
     }
 
-    //add event listeners
-    for (var i = 0; i < reqInputs.length; i++) {
-        reqInputs.item(i).addEventListener('change', validInputEvent, false);
-    }
-
-    //prevent default form behavior
-    form.addEventListener('submit', function (e) {
+    function submit(e, func) {
         e.preventDefault();
         e.stopPropagation();
         var valid = true;
@@ -246,6 +273,22 @@ function Validator(form, opts) {
                 valid = false;
             }
         }
-        if (valid) this.submit();
-    });
+        if (valid){
+            if (func) {
+                func();
+            } else if (opts && opts.then)  {
+                return opts.then();
+            }
+            return this.submit();
+        }
+    }
+
+    //add event listeners
+    for (var i = 0; i < reqInputs.length; i++) {
+        reqInputs.item(i).addEventListener('change', validInputEvent, false);
+    }
+
+    //prevent default form behavior
+    form.addEventListener('submit', submit);
+    return submit;
 }
