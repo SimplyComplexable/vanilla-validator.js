@@ -13,16 +13,16 @@
         <div class="container">
             <div class="row">
                 <div class="col-xs-12">
-                    <form action="#" data-error-class="error-message" data-error-message="Please enter something!"
+                    <form action="#" data-error-class="error-message" data-error-message="Value must not be blank!"
                         data-error-input-class="error-input">
-                        <div class="row">
+                        <div class="row" id="row-1">
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label for="text-1">Text 1</label>
                                     <input type="text" id="text-1" name="abc" class="form-control"
                                         data-validate="required,length:2:10,regex:^(abc|abc)+$"
-                                        data-length-error-message="Value must be 2-5 characters long"
-                                        data-regex-error-message="Value must be abc repeated">
+                                        data-error-message-length="Value must be 2-5 characters long"
+                                        data-error-message-regex="Value must be abc repeated">
                                 </div>
                             </div>
                             <div class="col-xs-4">
@@ -30,7 +30,7 @@
                                     <label for="text-2">Text 2</label>
                                     <input type="text" id="text-2" name="phone" class="form-control"
                                         data-validate="phone:1"
-                                        data-phone-error-message="Value must be a valid phone number">
+                                        data-error-message-phone="Value must be a valid phone number">
                                 </div>
                             </div>
                             <div class="col-xs-4">
@@ -38,7 +38,7 @@
                                     <label for="text-3">Text 3</label>
                                     <input type="text" id="text-3" name="email" class="form-control"
                                         data-validate="required,email,length:0:36"
-                                        data-email-error-message="Please enter a valid email">
+                                        data-error-message-email="Please enter a valid email">
                                 </div>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                                     <label for="color-1">Color 1</label>
                                     <input type="color" id="color-1" class="form-control"
                                         data-validate="vals:#000000:#ffffff"
-                                        data-range-error-message="Color must be between aaa and bbb">
+                                        data-error-message-range="Color must be between aaa and bbb">
                                 </div>
                             </div>
                             <div class="col-xs-4">
@@ -183,9 +183,11 @@
         <script src="moment.min.js"></script>
         <script src="../src/Validator.js"></script>
         <script>
-            Validator(document.querySelector('form'), {
+            var validator = new Validator(document.querySelector('form'), {
                 dateValidator: DateValidator
             });
+            var row1Inputs = document.querySelectorAll('#row-1 [data-validate]');
+            validator.validateNodeList(row1Inputs);
         </script>
     </body>
 </html>

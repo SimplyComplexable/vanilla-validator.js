@@ -35,7 +35,7 @@ DateValidator.testDateInFormat = function testDateInFormat(date, format) {
     var dateFormatParts = format.split(/\/|-|,? /);
     var dateParts = date.split(/\/|-|,? /);
     console.log(dateParts);
-    var date = {};
+    date = {};
     for (var i = 0; i < dateFormatParts.length; i++) {
         switch (dateFormatParts[i]) {
             case 'M':
@@ -87,12 +87,6 @@ DateValidator.testDateInFormat = function testDateInFormat(date, format) {
 };
 
 DateValidator.testDate = function testDate(v,f) {
-    console.time('Date Validation');
     var format = this.testFormat(f);
-    if (format) {
-        var result = this.testDateInFormat(v,format);
-        console.timeEnd('Date Validation');
-        return result;
-    }
-    return false;
+    return format ? this.testDateInFormat(v,format) : false;
 };
