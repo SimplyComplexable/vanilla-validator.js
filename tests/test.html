@@ -42,7 +42,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" id="row-2">
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label for="text-4">Text 4</label>
@@ -183,11 +183,19 @@
         <script src="moment.min.js"></script>
         <script src="../src/Validator.js"></script>
         <script>
+            // Validate the second row only the default values
+            var row2Inputs = document.querySelectorAll('#row-2 [data-validate]');
+            Validator.prototype.validateNodeList(row2Inputs);
+
+            // Sets up validation on entire form, using the DateValidator library for date support
             var validator = new Validator(document.querySelector('form'), {
                 dateValidator: DateValidator
             });
+
+            // Validate the first row using the rules provided on the form element
             var row1Inputs = document.querySelectorAll('#row-1 [data-validate]');
             validator.validateNodeList(row1Inputs);
+
         </script>
     </body>
 </html>

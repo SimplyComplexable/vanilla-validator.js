@@ -6,18 +6,6 @@
  * @constructor
  */
 function Validator(form, opts) {
-
-    //function for merging 2 objects with polyfill for ie
-    function mergeObjects(obj1, obj2) {
-        if (Object.assign) {
-            return Object.assign(obj1, obj2);
-        }
-        var obj3 = {};
-        for (var attName in obj1) { obj3[attName] = obj1[attName]; }
-        for (var attName in obj2) { obj3[attName] = obj2[attName]; }
-        return obj3;
-    }
-    
     this.form = form;
 
     //combine default options and user defined options
@@ -74,6 +62,35 @@ function getDataAttribute(el, att) {
     return el.getAttribute('data-' + att);
 }
 
+/**
+ * Function for merging two objects with polyfill for ie9
+ * performs single depth copy
+ * @param obj1
+ * @param obj2
+ * @returns {*}
+ */
+function mergeObjects(obj1, obj2) {
+    var output = {};
+    var args = [].slice.call(arguments);
+    for (var i in args) {
+        for (var p in args[i]) {
+            if (typeof args[i][p] === 'object' && args[i][p]) {
+                var att = Number(i) ? output[p] : {};
+                for (var attName in args[i][p]) {
+                    if (args[i][p][attName]) {
+                        att[attName] = args[i][p][attName];
+                    }
+                }
+                // console.log(p, att);
+                output[p] = att;
+            } else if (args[i][p]) {
+                output[p] = args[i][p];
+            }
+        }
+    }
+    return output;
+}
+
 // Default options
 Validator.prototype.opts = {
     // class/library to use for validating dates (i.e. DateValidator, moment)
@@ -94,7 +111,7 @@ Validator.prototype.opts = {
 
     // value to delimit validation rules and parameters in inline attribute
     delimiters: {
-        function: ',',
+        func: ',',
         parameters: ':'
     },
 
@@ -114,181 +131,181 @@ Validator.prototype.opts = {
 
 // Tests which are used on multiple input types
 Validator.prototype.generalTests = {
-        required: function (el) {
-            return !!el.value;
-        },
-        length: function (el, p) {
-            var v = el.value;
-            return p[1] ? v.length >= p[0] && v.length <= p[1] : v.length >= p[0];
-        },
-        regex: function (el, p) {
-            return (new RegExp(p[0])).test(el.value);
-        },
-        vals: function (el, p) {
-            var v = el.value.toLowerCase();
-            var vals = [];
-            for (var i = 0; i < p.length; i++) {
-                if (p[i].indexOf('!') !== -1) {
-                    if (v.indexOf(p[0].substr(1)) !== -1) return false;
-                } else {
-                    vals.push(p[i].toLowerCase());
-                }
-            }
-            return !vals.length ? true : (new RegExp('^('+p.join('|')+')$')).test(v);
-        },
-        number: function (el, p) {
-            var n = Number(el.value);
-            if (isNaN(n)) return false;
-
-            return !p[0]
-                ? true
-                : p[1]
-                    ? n >= p[0] && n <= p[1]
-                    : n >= p[0];
-        },
-        phone: function (el, p) {
-            var length = Number(el.value.replace(/\D+/g, '')).toString().length;
-            return p[0] === undefined
-                ? length === 11 || length === 10
-                : Number(p[0])
-                    ? length === 11
-                    : length === 10;
-        },
-        email: function (el) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
-        },
-        date: function (el, p) {
-            var v = el.value;
-            var DateValidator = this.opts.dateValidator;
-            var dvStr = DateValidator.toString();
-            var result;
-            if (dvStr.indexOf('DateValidator') !== -1) {
-                return DateValidator.testDate(v, p[0]);
-            } else if (DateValidator.isMoment) {
-                return DateValidator(v, p[0], true).isValid();
+    required: function (el) {
+        return !!el.value;
+    },
+    length: function (el, p) {
+        var v = el.value;
+        return p[1] ? v.length >= p[0] && v.length <= p[1] : v.length >= p[0];
+    },
+    regex: function (el, p) {
+        return (new RegExp(p[0])).test(el.value);
+    },
+    vals: function (el, p) {
+        var v = el.value.toLowerCase();
+        var vals = [];
+        for (var i = 0; i < p.length; i++) {
+            if (p[i].indexOf('!') !== -1) {
+                if (v.indexOf(p[0].substr(1)) !== -1) return false;
             } else {
-                return (new Date(v) !== "Invalid Date") && !isNaN(new Date(v));
+                vals.push(p[i].toLowerCase());
             }
-        },
-        // time: function (el, v, p) {
-        //
-        // },
-        // datetime: function (el, v, p) {
-        //
-        // },
-        url: function (el, p) {
-            var regExStr = p[0] === undefined
-                ? ''
-                : p[0]
-                    ? 'https:\/\/(www\.)?'
-                    : 'https?:\/\/(www\.)?';
-            return (new RegExp(regExStr + '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')).test(el.value);
-        },
-        match: function (el, p) {
-            return el.value === this.form.querySelector('#' + p[0]).value;
         }
-    };
+        return !vals.length ? true : (new RegExp('^('+p.join('|')+')$')).test(v);
+    },
+    number: function (el, p) {
+        var n = Number(el.value);
+        if (isNaN(n)) return false;
+
+        return !p[0]
+            ? true
+            : p[1]
+                ? n >= p[0] && n <= p[1]
+                : n >= p[0];
+    },
+    phone: function (el, p) {
+        var length = Number(el.value.replace(/\D+/g, '')).toString().length;
+        return p[0] === undefined
+            ? length === 11 || length === 10
+            : Number(p[0])
+                ? length === 11
+                : length === 10;
+    },
+    email: function (el) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+    },
+    date: function (el, p) {
+        var v = el.value;
+        var dv = this.opts.dateValidator;
+        if (!dv) {
+            return (new Date(v) !== "Invalid Date") && !isNaN(new Date(v));
+        }
+        if (dv.toString().indexOf('DateValidator') !== -1) {
+            return dv.testDate(v, p[0]);
+        } else if (dv.isMoment) {
+            return dv(v, p[0], true).isValid();
+        }
+    },
+    // time: function (el, p) {
+    //
+    // },
+    // datetime: function (el, p) {
+    //
+    // },
+    url: function (el, p) {
+        var regExStr = p[0] === undefined
+            ? ''
+            : p[0]
+                ? 'https:\/\/(www\.)?'
+                : 'https?:\/\/(www\.)?';
+        return (new RegExp(regExStr + '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')).test(el.value);
+    },
+    match: function (el, p) {
+        // todo: setup event listeners for validation on both elements
+        return el.value === this.form.querySelector('#' + p[0]).value;
+    }
+};
 
 // Set of test functions grouped by input type which will be run on validation
 // All rules should return a boolean specifying the validity of the input value against the rule
 Validator.prototype.tests = {
-        text: {
-            required: Validator.prototype.generalTests.required,
-            regex: Validator.prototype.generalTests.regex,
-            length: Validator.prototype.generalTests.length,
-            number: Validator.prototype.generalTests.number,
-            phone: Validator.prototype.generalTests.phone,
-            email: Validator.prototype.generalTests.email,
-            vals: Validator.prototype.generalTests.vals,
-            url: Validator.prototype.generalTests.url,
-            date: Validator.prototype.generalTests.date,
-            match: Validator.prototype.generalTests.match
-        },
-        "select-one": {
+    text: {
         required: Validator.prototype.generalTests.required,
-            vals: Validator.prototype.generalTests.vals
+        regex: Validator.prototype.generalTests.regex,
+        length: Validator.prototype.generalTests.length,
+        number: Validator.prototype.generalTests.number,
+        phone: Validator.prototype.generalTests.phone,
+        email: Validator.prototype.generalTests.email,
+        vals: Validator.prototype.generalTests.vals,
+        url: Validator.prototype.generalTests.url,
+        date: Validator.prototype.generalTests.date,
+        match: Validator.prototype.generalTests.match
     },
-        checkbox: {
-            required: function() {
-                return this.checked;
-            },
-            checked: function() {
-                return this.checked;
-            }
+    "select-one": {
+        required: Validator.prototype.generalTests.required,
+        vals: Validator.prototype.generalTests.vals
+    },
+    checkbox: {
+        required: function() {
+            return this.checked;
         },
-        color: {
-            vals: Validator.prototype.generalTests.vals,
-                range: function (el, p) {
-                for (var i = 0; i < p.length; i++) {
-                    p[i] = parseInt(p[i], 16);
-                }
-                var v = parseInt(el.value.substr(1),16);
-                return !p[0]
-                    ? true
-                    : p[1]
-                        ? v >= p[0] && v <= p[1]
-                        : v >= p[0];
-            }
-        },
-        date: {
-            required: Validator.prototype.generalTests.required
-        },
-        file: {
-            required: Validator.prototype.generalTests.required,
-                "accept": function (el) {
-                var fileTypes = getDataAttribute('accept').split(',').map(function (val) {
-                    return val.trim();
-                });
-                var isValid = false;
-                for (var i = 0; i < fileTypes.length; i++) {
-                    if ((new RegExp(fileTypes[i] + '$')).test(el.value)) {
-                        isValid = true;
-                        break;
-                    }
-                }
-                return isValid;
-            }
-        },
-        hidden: {
-            required: Validator.prototype.generalTests.required,
-                regex: Validator.prototype.generalTests.regex,
-                length: Validator.prototype.generalTests.length,
-                number: Validator.prototype.generalTests.number,
-                phone: Validator.prototype.generalTests.phone,
-                email: Validator.prototype.generalTests.email,
-                vals: Validator.prototype.generalTests.vals,
-                url: Validator.prototype.generalTests.url,
-                match: Validator.prototype.generalTests.match
-        },
-        number: {
-            required: Validator.prototype.generalTests.required,
-                range: Validator.prototype.generalTests.number,
-                match: Validator.prototype.generalTests.match
-        },
-        password: {
-            required: Validator.prototype.generalTests.required,
-                regex: Validator.prototype.generalTests.regex,
-                length: Validator.prototype.generalTests.length,
-                number: Validator.prototype.generalTests.number,
-                match: Validator.prototype.generalTests.match
-        },
-        radio: {
-            required: function (el) {
-                return !!document.querySelector('input[name="'+el.name+'"]:checked');
-            }
-        },
-        search: {
-            required: Validator.prototype.generalTests.required,
-                regex: Validator.prototype.generalTests.regex,
-                length: Validator.prototype.generalTests.length,
-                number: Validator.prototype.generalTests.number,
-                phone: Validator.prototype.generalTests.phone,
-                email: Validator.prototype.generalTests.email,
-                vals: Validator.prototype.generalTests.vals,
-                url: Validator.prototype.generalTests.url,
-                match: Validator.prototype.generalTests.match
+        checked: function() {
+            return this.checked;
         }
-    };
+    },
+    color: {
+        vals: Validator.prototype.generalTests.vals,
+        range: function (el, p) {
+            for (var i = 0; i < p.length; i++) {
+                p[i] = parseInt(p[i], 16);
+            }
+            var v = parseInt(el.value.substr(1),16);
+            return !p[0]
+                ? true
+                : p[1]
+                    ? v >= p[0] && v <= p[1]
+                    : v >= p[0];
+        }
+    },
+    date: {
+        required: Validator.prototype.generalTests.required
+    },
+    file: {
+        required: Validator.prototype.generalTests.required,
+        "accept": function (el) {
+            var fileTypes = getDataAttribute('accept').split(',').map(function (val) {
+                return val.trim();
+            });
+            var isValid = false;
+            for (var i = 0; i < fileTypes.length; i++) {
+                if ((new RegExp(fileTypes[i] + '$')).test(el.value)) {
+                    isValid = true;
+                    break;
+                }
+            }
+            return isValid;
+        }
+    },
+    hidden: {
+        required: Validator.prototype.generalTests.required,
+        regex: Validator.prototype.generalTests.regex,
+        length: Validator.prototype.generalTests.length,
+        number: Validator.prototype.generalTests.number,
+        phone: Validator.prototype.generalTests.phone,
+        email: Validator.prototype.generalTests.email,
+        vals: Validator.prototype.generalTests.vals,
+        url: Validator.prototype.generalTests.url,
+        match: Validator.prototype.generalTests.match
+    },
+    number: {
+        required: Validator.prototype.generalTests.required,
+        range: Validator.prototype.generalTests.number,
+        match: Validator.prototype.generalTests.match
+    },
+    password: {
+        required: Validator.prototype.generalTests.required,
+        regex: Validator.prototype.generalTests.regex,
+        length: Validator.prototype.generalTests.length,
+        number: Validator.prototype.generalTests.number,
+        match: Validator.prototype.generalTests.match
+    },
+    radio: {
+        required: function (el) {
+            return !!document.querySelector('input[name="'+el.name+'"]:checked');
+        }
+    },
+    search: {
+        required: Validator.prototype.generalTests.required,
+        regex: Validator.prototype.generalTests.regex,
+        length: Validator.prototype.generalTests.length,
+        number: Validator.prototype.generalTests.number,
+        phone: Validator.prototype.generalTests.phone,
+        email: Validator.prototype.generalTests.email,
+        vals: Validator.prototype.generalTests.vals,
+        url: Validator.prototype.generalTests.url,
+        match: Validator.prototype.generalTests.match
+    }
+};
 
 /**
  * Get error values from element, used to get form-wide values from form element
@@ -328,11 +345,13 @@ Validator.prototype.validateInput = function(el, opts) {
 
     if (!opts) {
         opts = this.opts;
+    } else {
+        opts = mergeObjects(this.opts, opts)
     }
     var atts = opts.attributes;
 
     // get array of validation rules for the element using the relevant validation attribute and delimiter
-    var validators = getDataAttribute(el, this.opts.attributes.validate).split(opts.delimiters.function);
+    var validators = getDataAttribute(el, this.opts.attributes.validate).split(opts.delimiters.func);
 
     var isValid = true;
 
@@ -343,12 +362,13 @@ Validator.prototype.validateInput = function(el, opts) {
             var ruleArr = validators[i].split(opts.delimiters.parameters);
 
             // run validation test using tests obj. "this" is applied for referencing by called function
+            if (!el.value && ruleArr[0] !== 'required') continue;
             if (!this.tests[el.type][ruleArr[0]].call(this, el, ruleArr.splice(1))) {
                 isValid = false;
                 break;
             }
         } catch (e) {
-            console.error(e);
+            //     console.error(e);
             // if error occured specified rule most-likely does not exist on input type
             console.error('Invalid rule: ' + ruleArr[0] + ' on type ' + el.type);
         }
@@ -429,13 +449,13 @@ Validator.prototype.validateInput = function(el, opts) {
  */
 Validator.prototype.validateNodeList = function(nodeList, opts) {
     var valid = true;
-    console.time('Form Validation');
+    // console.time('Form Validation');
     for (var i = 0; i < nodeList.length; i++) {
-        if (!this.validateInput(nodeList.item(i), opts)) {;
+        if (!this.validateInput(nodeList.item(i), opts)) {
             valid = false;
         }
     }
-    console.timeEnd('Form Validation');
+    // console.timeEnd('Form Validation');
 
     // if callback function provided call
     if (valid && opts && opts.then) {
