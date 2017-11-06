@@ -443,6 +443,82 @@ Validator.prototype = {
         return false;
     },
 
+    updateInput: function(el, validity, opts) {
+
+        if (!opts) {
+            opts = this.opts;
+        } else {
+            opts = mergeObjects(this.opts, opts)
+        }
+        var atts = opts.attributes;
+
+        var parent = el.parentElement;
+
+        // check if input already has attached error element
+        var span = parent.querySelector('span.' + opts.errorValues.eClass);
+
+        // get error class from input element or form-wide values
+        var eInputClass = getDataAttribute(el, atts.errorInputClass) || opts.errorValues.eInputClass;
+
+        if (validity) {
+            // if error element was already created, remove
+            if (span) {
+                parent.removeChild(span);
+            }
+
+            // if input class was specified remove class from input in-case it was applied previously
+            // note: this is using a polyfill for ie support
+            if (eInputClass) {
+                if (el.classList) {
+                    el.classList.remove(eInputClass);
+                } else {
+                    var index = el.className.indexOf(eInputClass);
+                    if (index) {
+                        el.className = el.className.substr(index, eInputClass.length);
+                    }
+                }
+            }
+            return true;
+        }
+
+        // if input is not valid apply input class to input element
+        if (eInputClass) {
+            addClass(el,eInputClass);
+        }
+
+        // if span was not previously create now
+        if (!span) {
+            span = document.createElement('span');
+        }
+
+        // get attribute name for error message, using variable to avoid repetition of longer name
+        var eStr = atts.errorMessage;
+
+        // get rule specific error message attribute name
+        var eMessageAtt = eStr + '-' + ruleArr[0].toLowerCase();
+
+        // if not static, check for rule specific error message and add to list of values
+        if (this.form && !opts.errorValues[eMessageAtt]) {
+            opts.errorValues[eMessageAtt] = getDataAttribute(this.form, eMessageAtt);
+        }
+
+        // set text of error element based on available values in the following priority
+        // rule specific input att > rule specific form att > input att > form att > constructor provided value
+        span.innerText = getDataAttribute(el, eMessageAtt) || opts.errorValues[eMessageAtt]
+            || getDataAttribute(el, eStr) || opts.errorValues.eMessage;
+
+        // get error class with following priority
+        // input att > form att > constructor provided value
+        var eClass = getDataAttribute(el, atts.errorClass) || opts.errorValues.eClass;
+
+        if (eClass) {
+            addClass(span, eClass);
+        }
+
+        parent.appendChild(span);
+        return false;
+    },
+
     /**
      * Validate node list of input elements
      * @param {NodeList} nodeList - list of elements to validate
